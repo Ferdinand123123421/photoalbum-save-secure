@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS-Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .box {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px #0001;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    #result {
+      margin-top: 20px;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>GPS-Selbstversuch</h1>
+
+    <p>
+      Diese Demo fragt nach deiner Standortfreigabe.
+      Es werden keine Daten an einen fremden Server gesendet.
+    </p>
+
+    <button id="start">Standort freigeben</button>
+
+    <div id="result">
+      Noch keine Standortdaten abgerufen.
+    </div>
+  </div>
+
+<script>
+  const button = document.getElementById("start");
+  const result = document.getElementById("result");
+
+  button.addEventListener("click", () => {
+
+    if (!navigator.geolocation) {
+      result.textContent = "Dein Browser unterstützt keine Standortabfrage.";
+      return;
+    }
+
+    result.innerHTML = "Suche deinen genauesten Standort...<br>Bitte einige Sekunden warten.";
+
+    let bestePosition = null;
+    let anzahlMessungen = 0;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+
+        anzahlMessungen++;
+
+        // Speichere nur die genaueste bisher erhaltene Position
+        if (
+          bestePosition === null ||
+          position.coords.accuracy < bestePosition.coords.accuracy
+        ) {
+          bestePosition = position;
+
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+
+          result.innerHTML = `
+            <strong>Beste bisherige Messung</strong><br><br>
+
+            Breitengrad:<br>
+            ${latitude}<br><br>
+
+            Längengrad:<br>
+            ${longitude}<br><br>
+
+            Genauigkeit:<br>
+            ca. ${Math.round(accuracy)} Meter<br><br>
+
+            Messungen erhalten: ${anzahlMessungen}<br><br>
+
+            <a
+              href="https://www.google.com/maps?q=${latitude},${longitude}"
+              target="_blank"
+            >
+              Standort auf Google Maps öffnen
+            </a>
+          `;
+        }
+
+        // Nach ca. 30 Sekunden stoppen
+        if (anzahlMessungen >= 15) {
+          navigator.geolocation.clearWatch(watchId);
+        }
+      },
+
+      (error) => {
+        result.innerHTML =
+          "Fehler bei der Standortabfrage:<br>" + error.message;
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 30000,
+        maximumAge: 0
+      }
+    );
+
+    // Sicherheitshalber nach 30 Sekunden stoppen
+    setTimeout(() => {
+      navigator.geolocation.clearWatch(watchId);
+    }, 30000);
+  });
+</script>
+</body>
+</html>
