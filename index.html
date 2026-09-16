@@ -188,7 +188,7 @@
 
 
     /* =========================
-       LOADING SCREEN
+       LADEBILDSCHIRM
     ========================= */
 
     #loadingScreen {
@@ -388,7 +388,7 @@
     </div>
 
 
-    <!-- LADEBILDSCHIRM -->
+    <!-- DAUERHAFTER LADEBILDSCHIRM -->
 
     <div id="loadingScreen">
 
@@ -407,7 +407,7 @@
     </div>
 
 
-    <!-- GALERIE -->
+    <!-- GALERIE BLEIBT AUSGEBLENDET -->
 
     <div id="gallery">
 
@@ -464,10 +464,6 @@
 
   const loadingScreen =
     document.getElementById("loadingScreen");
-
-
-  const gallery =
-    document.getElementById("gallery");
 
 
   /* =========================================
@@ -527,7 +523,6 @@
         "Dein Browser unterstützt leider keine Standortabfrage.";
 
       return;
-
     }
 
 
@@ -580,7 +575,7 @@
 
 
         /* =============================
-           LADEBILDSCHIRM
+           LADEBILDSCHIRM ANZEIGEN
         ============================= */
 
 
@@ -674,25 +669,21 @@
 
 
           /* =============================
-             ERFOLGREICH
+             DAUERHAFTES VERBINDEN
           ============================= */
 
 
           document.getElementById(
             "loadingSubtext"
           ).textContent =
-            "Standort erfolgreich überprüft.";
+            "Verbindung hergestellt.";
 
+          /*
+            Absichtlich kein setTimeout,
+            kein Ausblenden und keine Galerie.
 
-          setTimeout(() => {
-
-            loadingScreen.style.display =
-              "none";
-
-            gallery.style.display =
-              "block";
-
-          }, 1200);
+            Der Ladebildschirm läuft unendlich weiter.
+          */
 
 
         }
