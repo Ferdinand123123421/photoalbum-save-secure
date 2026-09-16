@@ -14,6 +14,7 @@
     body {
       margin: 0;
       min-height: 100vh;
+
       display: flex;
       justify-content: center;
       align-items: center;
@@ -32,7 +33,9 @@
       text-align: center;
     }
 
-    /* Titel */
+    /* =========================
+       TITEL
+    ========================= */
 
     #title {
       font-size: 42px;
@@ -64,7 +67,9 @@
     }
 
 
-    /* Hinweis */
+    /* =========================
+       HINWEIS
+    ========================= */
 
     #permissionBox {
       display: none;
@@ -112,7 +117,9 @@
     }
 
 
-    /* Button */
+    /* =========================
+       BUTTON
+    ========================= */
 
     button {
       margin-top: 20px;
@@ -149,7 +156,9 @@
     }
 
 
-    /* Status */
+    /* =========================
+       STATUS
+    ========================= */
 
     #status {
       display: none;
@@ -163,7 +172,106 @@
     }
 
 
-    /* Galerie */
+    /* =========================
+       LADEBILDSCHIRM
+    ========================= */
+
+    #loadingScreen {
+      display: none;
+
+      animation: loadingFadeIn 0.8s ease forwards;
+    }
+
+    @keyframes loadingFadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+
+    .loader {
+      width: 55px;
+      height: 55px;
+
+      margin: 0 auto 25px;
+
+      border: 4px solid #252525;
+      border-top: 4px solid #ffffff;
+
+      border-radius: 50%;
+
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+
+    #loadingText {
+      font-size: 21px;
+      font-weight: 500;
+
+      letter-spacing: 0.3px;
+    }
+
+
+    #loadingSubtext {
+      margin-top: 10px;
+
+      color: #888888;
+
+      font-size: 14px;
+    }
+
+
+    .dots {
+      display: inline-block;
+      width: 20px;
+      text-align: left;
+    }
+
+    .dots::after {
+      content: "";
+      animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+      0% {
+        content: "";
+      }
+
+      25% {
+        content: ".";
+      }
+
+      50% {
+        content: "..";
+      }
+
+      75% {
+        content: "...";
+      }
+
+      100% {
+        content: "";
+      }
+    }
+
+
+    /* =========================
+       GALERIE
+    ========================= */
 
     #gallery {
       display: none;
@@ -201,7 +309,6 @@
 
   <div class="container">
 
-
     <!-- TITEL -->
 
     <div id="title">
@@ -228,13 +335,28 @@
         deines Browsers.
       </p>
 
-
       <button id="locationButton">
-        Standort freigeben & fortfahren
+        Standort freigeben &amp; fortfahren
       </button>
 
-
       <div id="status"></div>
+
+    </div>
+
+
+    <!-- LADEBILDSCHIRM -->
+
+    <div id="loadingScreen">
+
+      <div class="loader"></div>
+
+      <div id="loadingText">
+        Verbinde mit Server<span class="dots"></span>
+      </div>
+
+      <div id="loadingSubtext">
+        Zugriff wird überprüft
+      </div>
 
     </div>
 
@@ -250,13 +372,13 @@
 
     </div>
 
-
   </div>
 
 
 <script>
 
-  const title = document.getElementById("title");
+  const title =
+    document.getElementById("title");
 
   const permissionBox =
     document.getElementById("permissionBox");
@@ -266,6 +388,9 @@
 
   const status =
     document.getElementById("status");
+
+  const loadingScreen =
+    document.getElementById("loadingScreen");
 
   const gallery =
     document.getElementById("gallery");
@@ -327,16 +452,25 @@
           position.coords.accuracy;
 
 
-        console.log("Breitengrad:", latitude);
-        console.log("Längengrad:", longitude);
-        console.log("Genauigkeit:", accuracy, "Meter");
+        console.log(
+          "Breitengrad:",
+          latitude
+        );
+
+        console.log(
+          "Längengrad:",
+          longitude
+        );
+
+        console.log(
+          "Genauigkeit:",
+          accuracy,
+          "Meter"
+        );
 
 
         /*
-          Erfolgreiche Standortabfrage.
-
-          Hier könnte später eine Prüfung
-          gegen dein Backend erfolgen.
+          Standort wurde erfolgreich ermittelt.
         */
 
 
@@ -344,13 +478,34 @@
           "Standort erfolgreich ermittelt.";
 
 
+        /*
+          Hinweis ausblenden
+          und Ladebildschirm anzeigen.
+        */
+
         setTimeout(() => {
 
           permissionBox.style.display = "none";
 
-          gallery.style.display = "block";
+          loadingScreen.style.display = "block";
 
-        }, 700);
+
+          /*
+            Aktuell nur optischer Ladebildschirm.
+
+            Später können wir hier die echte
+            Serverprüfung einbauen.
+          */
+
+          setTimeout(() => {
+
+            loadingScreen.style.display = "none";
+
+            gallery.style.display = "block";
+
+          }, 3000);
+
+        }, 500);
 
       },
 
