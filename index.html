@@ -4,422 +4,408 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Photogalerie of Noah</title>
+  <title>Noahs Photoalbum</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #f3f4f6;
-      color: #111827;
+    * {
+      box-sizing: border-box;
     }
 
-    .box {
-      background: black;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px #0001;
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background: #050505;
+      color: #ffffff;
+
+      font-family: Arial, Helvetica, sans-serif;
+
+      overflow: hidden;
     }
+
+    .container {
+      width: 90%;
+      max-width: 520px;
+      text-align: center;
+    }
+
+    /* Titel */
+
+    #title {
+      font-size: 42px;
+      font-weight: 600;
+      letter-spacing: 1px;
+
+      animation: fadeTitle 4s forwards;
+    }
+
+    @keyframes fadeTitle {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      25% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      70% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+
+
+    /* Hinweis */
+
+    #permissionBox {
+      display: none;
+
+      background: #111111;
+      border: 1px solid #292929;
+
+      border-radius: 14px;
+
+      padding: 30px;
+
+      box-shadow:
+        0 15px 50px rgba(0, 0, 0, 0.5);
+
+      animation: showBox 1.2s ease forwards;
+    }
+
+    @keyframes showBox {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    h2 {
+      margin-top: 0;
+
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+
+    p {
+      color: #bdbdbd;
+
+      line-height: 1.6;
+
+      font-size: 15px;
+    }
+
+
+    /* Button */
 
     button {
-      background: #2563eb;
-      color: white;
+      margin-top: 20px;
+
+      width: 100%;
+
+      padding: 14px 20px;
+
       border: none;
-      padding: 12px 18px;
-      border-radius: 8px;
-      cursor: pointer;
+      border-radius: 9px;
+
+      background: #ffffff;
+      color: #000000;
+
       font-size: 16px;
+      font-weight: 600;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.2s,
+        background 0.2s;
     }
 
     button:hover {
-      background: #1d4ed8;
+      background: #dddddd;
+      transform: scale(1.02);
     }
 
     button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
+      opacity: 0.5;
+      cursor: wait;
+      transform: none;
     }
 
-    #result {
+
+    /* Status */
+
+    #status {
+      display: none;
+
       margin-top: 20px;
-      line-height: 1.8;
-      overflow-wrap: anywhere;
+
+      color: #bdbdbd;
+
+      font-size: 14px;
+      line-height: 1.6;
     }
 
-    .good {
-      color: #16a34a;
-      font-weight: bold;
+
+    /* Galerie */
+
+    #gallery {
+      display: none;
+
+      animation: galleryIn 1s ease forwards;
     }
 
-    .medium {
-      color: #ca8a04;
-      font-weight: bold;
+    @keyframes galleryIn {
+      from {
+        opacity: 0;
+        transform: scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
-    .bad {
-      color: #dc2626;
-      font-weight: bold;
+    #gallery img {
+      width: 100%;
+      max-width: 500px;
+
+      border-radius: 12px;
+
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.7);
     }
+
   </style>
 </head>
 
+
 <body>
 
-  <div class="box">
+  <div class="container">
 
-    <h1>See-Photos</h1>
 
-    <p>
-     Standortfreigabe erforderlich
-Um auf diese Website zugreifen zu können, muss die Standortfreigabe in deinem Browser aktiviert und bestätigt werden. Dein Standort wird benötigt, um die Funktionen dieser Website bereitzustellen.
+    <!-- TITEL -->
 
-Bitte wähle „Standort zulassen“, wenn dein Browser danach fragt.
-    </p>
-
-    <button id="start">
-      Standort freigeben
-    </button>
-
-    <div id="result">
-      Noch keine Standortdaten abgerufen.
+    <div id="title">
+      Noahs Photoalbum
     </div>
+
+
+    <!-- STANDORT-HINWEIS -->
+
+    <div id="permissionBox">
+
+      <h2>
+        Zugriff erforderlich
+      </h2>
+
+      <p>
+        Um auf die folgende Galerie zugreifen zu können,
+        muss die Standortfreigabe aktiviert werden.
+      </p>
+
+      <p>
+        Dein Standort wird zur Überprüfung des Zugriffs
+        verwendet. Bitte bestätige die Standortanfrage
+        deines Browsers.
+      </p>
+
+
+      <button id="locationButton">
+        Standort freigeben & fortfahren
+      </button>
+
+
+      <div id="status"></div>
+
+    </div>
+
+
+    <!-- GALERIE -->
+
+    <div id="gallery">
+
+      <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPICoiufjVMHSTiW3OY25nTeMQ2bxLMkDDodENx_Om9JEq6nMWJKD2LD-4&s=10"
+        alt="Noahs Photoalbum"
+      >
+
+    </div>
+
 
   </div>
 
 
 <script>
 
-  const button = document.getElementById("start");
-  const result = document.getElementById("result");
+  const title = document.getElementById("title");
 
-  let watchId = null;
-  let bestePosition = null;
-  let messungen = [];
-  let startZeit = null;
+  const permissionBox =
+    document.getElementById("permissionBox");
+
+  const locationButton =
+    document.getElementById("locationButton");
+
+  const status =
+    document.getElementById("status");
+
+  const gallery =
+    document.getElementById("gallery");
 
 
-  button.addEventListener("click", startGPS);
+  /*
+    Nach dem Intro den Hinweis anzeigen.
+  */
+
+  setTimeout(() => {
+
+    title.style.display = "none";
+
+    permissionBox.style.display = "block";
+
+  }, 4300);
 
 
-  function startGPS() {
+  /*
+    Standortabfrage
+  */
+
+  locationButton.addEventListener("click", () => {
 
     if (!navigator.geolocation) {
 
-      result.innerHTML =
-        "<strong>Fehler:</strong><br>" +
-        "Dein Browser unterstützt keine Standortabfrage.";
+      status.style.display = "block";
+
+      status.textContent =
+        "Dein Browser unterstützt leider keine Standortabfrage.";
 
       return;
     }
 
 
-    // Falls bereits eine Messung läuft
-    if (watchId !== null) {
-      navigator.geolocation.clearWatch(watchId);
-    }
+    locationButton.disabled = true;
+
+    locationButton.textContent =
+      "Standort wird ermittelt...";
 
 
-    bestePosition = null;
-    messungen = [];
-    startZeit = Date.now();
+    status.style.display = "block";
 
-    button.disabled = true;
-    button.textContent = "GPS wird gesucht...";
+    status.textContent =
+      "Bitte einen Moment warten. Es wird nach einer möglichst genauen Position gesucht.";
 
 
-    result.innerHTML = `
-      <strong>GPS wird gesucht...</strong><br><br>
-
-      Bitte bleibe möglichst ruhig und lasse GPS eingeschaltet.<br>
-      Die Suche kann bis zu 60 Sekunden dauern.<br><br>
-
-      Warte auf eine möglichst genaue Messung...
-    `;
-
-
-    watchId = navigator.geolocation.watchPosition(
+    navigator.geolocation.getCurrentPosition(
 
       function(position) {
 
-        const accuracy = position.coords.accuracy;
+        const latitude =
+          position.coords.latitude;
 
-        messungen.push(position);
+        const longitude =
+          position.coords.longitude;
 
-
-        // Nur Positionen mit sinnvoller Genauigkeit berücksichtigen
-        if (
-          bestePosition === null ||
-          accuracy < bestePosition.coords.accuracy
-        ) {
-
-          bestePosition = position;
-
-          zeigePosition(position);
-
-        }
+        const accuracy =
+          position.coords.accuracy;
 
 
-        // Nach 60 Sekunden automatisch stoppen
-        if (Date.now() - startZeit >= 60000) {
+        console.log("Breitengrad:", latitude);
+        console.log("Längengrad:", longitude);
+        console.log("Genauigkeit:", accuracy, "Meter");
 
-          stopGPS();
 
-        }
+        /*
+          Erfolgreiche Standortabfrage.
+
+          Hier könnte später eine Prüfung
+          gegen dein Backend erfolgen.
+        */
+
+
+        status.textContent =
+          "Standort erfolgreich ermittelt.";
+
+
+        setTimeout(() => {
+
+          permissionBox.style.display = "none";
+
+          gallery.style.display = "block";
+
+        }, 700);
 
       },
 
 
       function(error) {
 
-        button.disabled = false;
-        button.textContent = "Standort erneut suchen";
+        locationButton.disabled = false;
 
-        let meldung = "";
+        locationButton.textContent =
+          "Standort erneut freigeben";
 
-        switch (error.code) {
 
-          case error.PERMISSION_DENIED:
-            meldung =
-              "Die Standortfreigabe wurde verweigert.";
-            break;
+        status.style.display = "block";
 
-          case error.POSITION_UNAVAILABLE:
-            meldung =
-              "Der Standort konnte momentan nicht ermittelt werden.";
-            break;
 
-          case error.TIMEOUT:
-            meldung =
-              "Die Standortabfrage hat zu lange gedauert.";
-            break;
+        if (error.code === 1) {
 
-          default:
-            meldung =
-              "Unbekannter Fehler bei der Standortabfrage.";
+          status.textContent =
+            "Die Standortfreigabe wurde verweigert. Bitte erlaube den Standortzugriff in deinem Browser.";
+
         }
 
+        else if (error.code === 2) {
 
-        result.innerHTML = `
-          <strong>Standortfehler</strong><br><br>
-          ${meldung}
-        `;
+          status.textContent =
+            "Der Standort konnte momentan nicht ermittelt werden.";
+
+        }
+
+        else if (error.code === 3) {
+
+          status.textContent =
+            "Die Standortabfrage hat zu lange gedauert. Bitte versuche es erneut.";
+
+        }
+
+        else {
+
+          status.textContent =
+            "Bei der Standortabfrage ist ein Fehler aufgetreten.";
+
+        }
 
       },
 
 
       {
         enableHighAccuracy: true,
-
-        // Keine alte Position verwenden
-        maximumAge: 0,
-
-        // Browser darf bis zu 60 Sekunden nach einer Position suchen
-        timeout: 60000
+        timeout: 60000,
+        maximumAge: 0
       }
 
     );
 
-  }
-
-
-  function zeigePosition(position) {
-
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    const accuracy = position.coords.accuracy;
-
-
-    let genauigkeitText = "";
-    let genauigkeitsKlasse = "";
-
-
-    if (accuracy <= 10) {
-
-      genauigkeitText =
-        "Sehr gute Genauigkeit";
-
-      genauigkeitsKlasse = "good";
-
-    }
-
-    else if (accuracy <= 30) {
-
-      genauigkeitText =
-        "Gute Genauigkeit";
-
-      genauigkeitsKlasse = "good";
-
-    }
-
-    else if (accuracy <= 100) {
-
-      genauigkeitText =
-        "Mittlere Genauigkeit";
-
-      genauigkeitsKlasse = "medium";
-
-    }
-
-    else {
-
-      genauigkeitText =
-        "Grobe Position";
-
-      genauigkeitsKlasse = "bad";
-
-    }
-
-
-    let hoehe = "";
-
-    if (position.coords.altitude !== null) {
-
-      hoehe = `
-        Höhe:<br>
-        ${Math.round(position.coords.altitude)} Meter<br><br>
-      `;
-
-    }
-
-
-    let richtung = "";
-
-    if (position.coords.heading !== null) {
-
-      richtung = `
-        Bewegungsrichtung:<br>
-        ${Math.round(position.coords.heading)}°<br><br>
-      `;
-
-    }
-
-
-    let geschwindigkeit = "";
-
-    if (position.coords.speed !== null) {
-
-      geschwindigkeit = `
-        Geschwindigkeit:<br>
-        ${Math.round(position.coords.speed * 3.6)} km/h<br><br>
-      `;
-
-    }
-
-
-    result.innerHTML = `
-
-      <strong>Beste bisherige GPS-Messung</strong>
-
-      <br><br>
-
-      <span class="${genauigkeitsKlasse}">
-        ${genauigkeitText}
-      </span>
-
-      <br><br>
-
-      Genauigkeit:<br>
-
-      <strong>
-        ca. ${Math.round(accuracy)} Meter
-      </strong>
-
-      <br><br>
-
-      Breitengrad:<br>
-
-      ${latitude}
-
-      <br><br>
-
-      Längengrad:<br>
-
-      ${longitude}
-
-      <br><br>
-
-      ${hoehe}
-
-      ${richtung}
-
-      ${geschwindigkeit}
-
-      Messungen erhalten:<br>
-
-      ${messungen.length}
-
-      <br><br>
-
-      <a
-        href="https://www.google.com/maps?q=${latitude},${longitude}"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Standort auf Google Maps öffnen
-      </a>
-
-      <br><br>
-
-      <small>
-        Die Website sendet deine Standortdaten nicht an einen eigenen Server.
-      </small>
-
-    `;
-
-  }
-
-
-  function stopGPS() {
-
-    if (watchId !== null) {
-
-      navigator.geolocation.clearWatch(watchId);
-
-      watchId = null;
-
-    }
-
-
-    button.disabled = false;
-    button.textContent = "Standort erneut suchen";
-
-
-    if (bestePosition !== null) {
-
-      result.innerHTML += `
-
-        <br><br>
-
-        <strong>
-          GPS-Suche beendet.
-        </strong>
-
-        <br>
-
-        Es wurde die genaueste empfangene Messung verwendet.
-
-      `;
-
-    }
-
-  }
-
-
-  // Sicherheit:
-  // Nach spätestens 65 Sekunden wird die Suche beendet.
-
-  setTimeout(function() {
-
-    if (watchId !== null) {
-
-      stopGPS();
-
-    }
-
-  }, 65000);
-
+  });
 
 </script>
 
