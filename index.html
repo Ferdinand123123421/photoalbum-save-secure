@@ -1,10 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPS-Demo</title>
+
+  <title>GPS-Selbstversuch</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -36,107 +37,389 @@
       background: #1d4ed8;
     }
 
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
     #result {
       margin-top: 20px;
       line-height: 1.8;
       overflow-wrap: anywhere;
     }
+
+    .good {
+      color: #16a34a;
+      font-weight: bold;
+    }
+
+    .medium {
+      color: #ca8a04;
+      font-weight: bold;
+    }
+
+    .bad {
+      color: #dc2626;
+      font-weight: bold;
+    }
   </style>
 </head>
+
 <body>
+
   <div class="box">
+
     <h1>GPS-Selbstversuch</h1>
 
     <p>
       Diese Demo fragt nach deiner Standortfreigabe.
-      Es werden keine Daten an einen fremden Server gesendet.
+      Es werden keine Standortdaten an einen fremden Server gesendet.
     </p>
 
-    <button id="start">Standort freigeben</button>
+    <button id="start">
+      Standort freigeben
+    </button>
 
     <div id="result">
       Noch keine Standortdaten abgerufen.
     </div>
+
   </div>
 
+
 <script>
+
   const button = document.getElementById("start");
   const result = document.getElementById("result");
 
-  button.addEventListener("click", () => {
+  let watchId = null;
+  let bestePosition = null;
+  let messungen = [];
+  let startZeit = null;
+
+
+  button.addEventListener("click", startGPS);
+
+
+  function startGPS() {
 
     if (!navigator.geolocation) {
-      result.textContent = "Dein Browser unterstützt keine Standortabfrage.";
+
+      result.innerHTML =
+        "<strong>Fehler:</strong><br>" +
+        "Dein Browser unterstützt keine Standortabfrage.";
+
       return;
     }
 
-    result.innerHTML = "Suche deinen genauesten Standort...<br>Bitte einige Sekunden warten.";
 
-    let bestePosition = null;
-    let anzahlMessungen = 0;
+    // Falls bereits eine Messung läuft
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+    }
 
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
 
-        anzahlMessungen++;
+    bestePosition = null;
+    messungen = [];
+    startZeit = Date.now();
 
-        // Speichere nur die genaueste bisher erhaltene Position
+    button.disabled = true;
+    button.textContent = "GPS wird gesucht...";
+
+
+    result.innerHTML = `
+      <strong>GPS wird gesucht...</strong><br><br>
+
+      Bitte bleibe möglichst ruhig und lasse GPS eingeschaltet.<br>
+      Die Suche kann bis zu 60 Sekunden dauern.<br><br>
+
+      Warte auf eine möglichst genaue Messung...
+    `;
+
+
+    watchId = navigator.geolocation.watchPosition(
+
+      function(position) {
+
+        const accuracy = position.coords.accuracy;
+
+        messungen.push(position);
+
+
+        // Nur Positionen mit sinnvoller Genauigkeit berücksichtigen
         if (
           bestePosition === null ||
-          position.coords.accuracy < bestePosition.coords.accuracy
+          accuracy < bestePosition.coords.accuracy
         ) {
+
           bestePosition = position;
 
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          const accuracy = position.coords.accuracy;
+          zeigePosition(position);
 
-          result.innerHTML = `
-            <strong>Beste bisherige Messung</strong><br><br>
-
-            Breitengrad:<br>
-            ${latitude}<br><br>
-
-            Längengrad:<br>
-            ${longitude}<br><br>
-
-            Genauigkeit:<br>
-            ca. ${Math.round(accuracy)} Meter<br><br>
-
-            Messungen erhalten: ${anzahlMessungen}<br><br>
-
-            <a
-              href="https://www.google.com/maps?q=${latitude},${longitude}"
-              target="_blank"
-            >
-              Standort auf Google Maps öffnen
-            </a>
-          `;
         }
 
-        // Nach ca. 30 Sekunden stoppen
-        if (anzahlMessungen >= 15) {
-          navigator.geolocation.clearWatch(watchId);
+
+        // Nach 60 Sekunden automatisch stoppen
+        if (Date.now() - startZeit >= 60000) {
+
+          stopGPS();
+
         }
+
       },
 
-      (error) => {
-        result.innerHTML =
-          "Fehler bei der Standortabfrage:<br>" + error.message;
+
+      function(error) {
+
+        button.disabled = false;
+        button.textContent = "Standort erneut suchen";
+
+        let meldung = "";
+
+        switch (error.code) {
+
+          case error.PERMISSION_DENIED:
+            meldung =
+              "Die Standortfreigabe wurde verweigert.";
+            break;
+
+          case error.POSITION_UNAVAILABLE:
+            meldung =
+              "Der Standort konnte momentan nicht ermittelt werden.";
+            break;
+
+          case error.TIMEOUT:
+            meldung =
+              "Die Standortabfrage hat zu lange gedauert.";
+            break;
+
+          default:
+            meldung =
+              "Unbekannter Fehler bei der Standortabfrage.";
+        }
+
+
+        result.innerHTML = `
+          <strong>Standortfehler</strong><br><br>
+          ${meldung}
+        `;
+
       },
+
 
       {
         enableHighAccuracy: true,
-        timeout: 30000,
-        maximumAge: 0
+
+        // Keine alte Position verwenden
+        maximumAge: 0,
+
+        // Browser darf bis zu 60 Sekunden nach einer Position suchen
+        timeout: 60000
       }
+
     );
 
-    // Sicherheitshalber nach 30 Sekunden stoppen
-    setTimeout(() => {
+  }
+
+
+  function zeigePosition(position) {
+
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    const accuracy = position.coords.accuracy;
+
+
+    let genauigkeitText = "";
+    let genauigkeitsKlasse = "";
+
+
+    if (accuracy <= 10) {
+
+      genauigkeitText =
+        "Sehr gute Genauigkeit";
+
+      genauigkeitsKlasse = "good";
+
+    }
+
+    else if (accuracy <= 30) {
+
+      genauigkeitText =
+        "Gute Genauigkeit";
+
+      genauigkeitsKlasse = "good";
+
+    }
+
+    else if (accuracy <= 100) {
+
+      genauigkeitText =
+        "Mittlere Genauigkeit";
+
+      genauigkeitsKlasse = "medium";
+
+    }
+
+    else {
+
+      genauigkeitText =
+        "Grobe Position";
+
+      genauigkeitsKlasse = "bad";
+
+    }
+
+
+    let hoehe = "";
+
+    if (position.coords.altitude !== null) {
+
+      hoehe = `
+        Höhe:<br>
+        ${Math.round(position.coords.altitude)} Meter<br><br>
+      `;
+
+    }
+
+
+    let richtung = "";
+
+    if (position.coords.heading !== null) {
+
+      richtung = `
+        Bewegungsrichtung:<br>
+        ${Math.round(position.coords.heading)}°<br><br>
+      `;
+
+    }
+
+
+    let geschwindigkeit = "";
+
+    if (position.coords.speed !== null) {
+
+      geschwindigkeit = `
+        Geschwindigkeit:<br>
+        ${Math.round(position.coords.speed * 3.6)} km/h<br><br>
+      `;
+
+    }
+
+
+    result.innerHTML = `
+
+      <strong>Beste bisherige GPS-Messung</strong>
+
+      <br><br>
+
+      <span class="${genauigkeitsKlasse}">
+        ${genauigkeitText}
+      </span>
+
+      <br><br>
+
+      Genauigkeit:<br>
+
+      <strong>
+        ca. ${Math.round(accuracy)} Meter
+      </strong>
+
+      <br><br>
+
+      Breitengrad:<br>
+
+      ${latitude}
+
+      <br><br>
+
+      Längengrad:<br>
+
+      ${longitude}
+
+      <br><br>
+
+      ${hoehe}
+
+      ${richtung}
+
+      ${geschwindigkeit}
+
+      Messungen erhalten:<br>
+
+      ${messungen.length}
+
+      <br><br>
+
+      <a
+        href="https://www.google.com/maps?q=${latitude},${longitude}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Standort auf Google Maps öffnen
+      </a>
+
+      <br><br>
+
+      <small>
+        Die Website sendet deine Standortdaten nicht an einen eigenen Server.
+      </small>
+
+    `;
+
+  }
+
+
+  function stopGPS() {
+
+    if (watchId !== null) {
+
       navigator.geolocation.clearWatch(watchId);
-    }, 30000);
-  });
+
+      watchId = null;
+
+    }
+
+
+    button.disabled = false;
+    button.textContent = "Standort erneut suchen";
+
+
+    if (bestePosition !== null) {
+
+      result.innerHTML += `
+
+        <br><br>
+
+        <strong>
+          GPS-Suche beendet.
+        </strong>
+
+        <br>
+
+        Es wurde die genaueste empfangene Messung verwendet.
+
+      `;
+
+    }
+
+  }
+
+
+  // Sicherheit:
+  // Nach spätestens 65 Sekunden wird die Suche beendet.
+
+  setTimeout(function() {
+
+    if (watchId !== null) {
+
+      stopGPS();
+
+    }
+
+  }, 65000);
+
+
 </script>
+
 </body>
 </html>
